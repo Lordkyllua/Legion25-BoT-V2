@@ -1,6 +1,39 @@
-module.exports = { name:'roles', description:'Assign yourself a role', execute(message,args){
-  const roleName = args.join(' '); if(!roleName) return message.channel.send('Usage: !roles <role name>');
-  const r = message.guild.roles.cache.find(x=>x.name.toLowerCase()===roleName.toLowerCase());
-  if(!r) return message.channel.send('Role not found');
-  message.member.roles.add(r).then(()=>message.channel.send(`Assigned role ${r.name}`)).catch(()=>message.channel.send('Failed to assign role'));
-} };
+const fs = require("fs");
+const path = require("path");
+const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require("discord.js");
+
+const rolesPath = path.join(__dirname, "../utils/rolesConfig.json");
+
+module.exports = {
+    name: "roles",
+    description: "Let members choose a role",
+    async execute(message, args) {
+        if (!fs.existsSync(rolesPath)) {
+            return message.reply("⚠️ No roles have been configured yet. Ask an admin to use `!roleadmin`.");
+        }
+
+        const configuredRoles = JSON.parse(fs.readFileSync(rolesPath, "utf8"));
+        if (configuredRoles.length === 0) {
+            return message.reply("⚠️ No roles available for self-assignment. Ask an admin to configure them.");
+        }
+
+        const options = configuredRoles.map(role => ({
+            label: role.name,
+            value: role.id
+        }));
+
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId("roles_select")
+            .setPlaceholder("Choose your role")
+            .addOptions(options);
+
+        const row = new ActionRowBuilder().addComponents(selectMenu);
+
+        const embed = new EmbedBuilder()
+            .setTitle("🎭 Choose Your Role")
+            .setDescription("Select a role from the menu below to assign it to yourself.")
+            .setColor("Green");
+
+        message.channel.send({ embeds: [embed], components: [row] });
+    },
+};
