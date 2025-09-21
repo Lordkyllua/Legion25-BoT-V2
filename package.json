@@ -1,0 +1,17 @@
+{
+  "name": "legion-25-bot",
+  "version": "1.0.0",
+  "description": "Legion 25 Bot - Developed by LordK (inspired by Tiny Survivors)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "node-fetch": "^2.6.7",
+    "fs-extra": "^11.2.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
