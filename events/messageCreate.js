@@ -1,17 +1,13 @@
 const config = require('../config.json');
-
 module.exports = {
   name: 'messageCreate',
   execute(client, message) {
     if (message.author.bot) return;
     if (!message.content.startsWith(config.prefix)) return;
-
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
-
-    const command = client.commands.get(commandName);
+    const cmd = args.shift().toLowerCase();
+    const command = client.commands.get(cmd);
     if (!command) return;
-
     try {
       command.execute(message, args, client);
     } catch (err) {
