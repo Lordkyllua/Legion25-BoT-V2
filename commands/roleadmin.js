@@ -19,13 +19,11 @@ module.exports = {
                 value: role.id
             }));
 
-        if (guildRoles.length === 0) {
-            return message.reply("⚠️ No roles available in this server.");
-        }
+        if (guildRoles.length === 0) return message.reply("⚠️ No roles available in this server.");
 
         const selectMenu = new StringSelectMenuBuilder()
             .setCustomId("roleadmin_select")
-            .setPlaceholder("Select roles to allow for self-assignment")
+            .setPlaceholder("Select roles members can assign")
             .setMinValues(1)
             .setMaxValues(guildRoles.length)
             .addOptions(guildRoles);
@@ -34,7 +32,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setTitle("⚙️ Role Configuration")
-            .setDescription("Select the roles you want members to assign to themselves.")
+            .setDescription("Select the roles members can assign to themselves.")
             .setColor("Orange");
 
         message.channel.send({ embeds: [embed], components: [row] });
