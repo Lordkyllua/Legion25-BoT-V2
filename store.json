@@ -9,6 +9,6 @@
   },
   "potion": {
     "price": 30,
-    "description": "\ud83d\udc8a Potion - restores HP"
+    "description": "\ud83d\udc8a Potion - heal 20 HP"
   }
 }

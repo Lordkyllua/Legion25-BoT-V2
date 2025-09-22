@@ -1,16 +1,17 @@
 {
-  "name": "legion-25-bot",
+  "name": "legion25-bot",
   "version": "1.0.0",
-  "description": "Discord bot with roles, games, RPG, clans, and economy system.",
+  "description": "Legion 25 Bot - Developed by LordK - Interactive menus v14",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "LordK",
-  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "discord.js": "^14.15.3",
-    "fs": "^0.0.1-security",
-    "path": "^0.12.7"
+    "node-fetch": "^2.6.7",
+    "fs-extra": "^11.2.0"
   }
 }
