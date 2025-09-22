@@ -5,21 +5,21 @@ module.exports = {
     description: "Show all available commands",
     execute(message) {
         const embed = new EmbedBuilder()
-            .setTitle("📜 Command List")
+            .setTitle("📜 Legion 25 Bot Commands")
             .setColor("Aqua")
-            .setDescription("Here are all available commands, organized by category:")
+            .setDescription("Here are all available commands, grouped by category:")
             .addFields(
                 {
                     name: "🎮 Games",
-                    value: "`!juegos` → Open the games menu (dice, rock-paper-scissors, coinflip, guess, memes, gifs, quotes).",
+                    value: "`!games` → Open the games menu. Options: dice, rock-paper-scissors, coinflip, guess, memes, gifs, quotes.",
                 },
                 {
                     name: "⚔️ RPG",
-                    value: "`!rpg` → Open the RPG menu (profile, quests, fights).",
+                    value: "`!rpg` → Open the RPG menu with options: profile, quests, fights, level up.",
                 },
                 {
                     name: "🏰 Clans",
-                    value: "`!clan` → Clan menu (create, join, leave, invite, info).",
+                    value: "`!clan` → Clan menu. Options: create, join, leave, invite, info.",
                 },
                 {
                     name: "💰 Economy",
@@ -31,8 +31,8 @@ module.exports = {
                 },
                 {
                     name: "🎭 Roles",
-                    value: "`!roleadmin` → Admins select which roles members can assign to themselves.\n" +
-                           "`!roles` → Members choose one of the allowed roles and assign it to themselves.",
+                    value: "`!roleadmin` → Admins select which roles members can assign.\n" +
+                           "`!roles` → Members choose one of the allowed roles from a menu.",
                 },
                 {
                     name: "⚙️ Setup",
