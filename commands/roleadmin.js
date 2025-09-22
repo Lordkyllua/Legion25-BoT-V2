@@ -1,19 +1,19 @@
 const fs = require("fs");
 const path = require("path");
-const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require("discord.js");
+const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder, PermissionsBitField } = require("discord.js");
 
 const rolesPath = path.join(__dirname, "../utils/rolesConfig.json");
 
 module.exports = {
     name: "roleadmin",
     description: "Configure which roles are available for members",
-    async execute(message, args) {
-        if (!message.member.permissions.has("ManageRoles")) {
+    async execute(message) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
             return message.reply("❌ You don’t have permission to use this command.");
         }
 
         const guildRoles = message.guild.roles.cache
-            .filter(role => role.name !== "@everyone") // ignore @everyone
+            .filter(role => role.name !== "@everyone")
             .map(role => ({
                 label: role.name,
                 value: role.id
