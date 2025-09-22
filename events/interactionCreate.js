@@ -26,11 +26,12 @@ module.exports = {
         if (interaction.customId === "roles_select") {
             const roleId = interaction.values[0];
             const role = interaction.guild.roles.cache.get(roleId);
-
             if (!role) return interaction.reply({ content: "❌ Role not found.", ephemeral: true });
 
             await interaction.member.roles.add(role);
-            return interaction.reply({ content: `🎭 You have been assigned the role **${role.name}**!`, ephemeral: true });
+            return interaction.reply({ content: `🎭 You have been assigned **${role.name}**!`, ephemeral: true });
         }
+
+        // Aquí se pueden agregar menus RPG y Clan similares
     },
 };
