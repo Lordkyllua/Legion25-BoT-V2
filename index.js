@@ -1,51 +1,41 @@
-const fs = require('fs');
-const path = require('path');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const config = require('./config.json');
+const { Client, GatewayIntentBits, Partials, Collection } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
+const config = require("./config.json");
 
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers
-  ]
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ],
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
 client.commands = new Collection();
 
-// Load commands
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
-for (const file of commandFiles) {
-  const cmd = require(path.join(commandsPath, file));
-  client.commands.set(cmd.name, cmd);
-}
-
-// Load events
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'));
-for (const file of eventFiles) {
-  const ev = require(path.join(eventsPath, file));
-  if (ev.once) client.once(ev.name, (...args) => ev.execute(client, ...args));
-  else client.on(ev.name, (...args) => ev.execute(client, ...args));
-}
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('⚠️ SIGINT received — shutting down gracefully');
-  try { await client.destroy(); } catch(e) {}
-  process.exit(0);
-});
-process.on('SIGTERM', async () => {
-  console.log('⚠️ SIGTERM received — shutting down gracefully');
-  try { await client.destroy(); } catch(e) {}
-  process.exit(0);
+// 📂 Cargar comandos
+const commandsPath = path.join(__dirname, "commands");
+fs.readdirSync(commandsPath).forEach(file => {
+    if (file.endsWith(".js")) {
+        const command = require(path.join(commandsPath, file));
+        client.commands.set(command.name, command);
+    }
 });
 
-// Login
-if (!process.env.DISCORD_TOKEN) {
-  console.error('❌ DISCORD_TOKEN not set. In Railway set the environment variable DISCORD_TOKEN');
-  process.exit(1);
-}
-client.login(process.env.DISCORD_TOKEN);
+// 📂 Cargar eventos
+const eventsPath = path.join(__dirname, "events");
+fs.readdirSync(eventsPath).forEach(file => {
+    if (file.endsWith(".js")) {
+        const event = require(path.join(eventsPath, file));
+        if (event.once) {
+            client.once(event.name, (...args) => event.execute(...args, client));
+        } else {
+            client.on(event.name, (...args) => event.execute(...args, client));
+        }
+    }
+});
+
+// 🟢 Login
+client.login(process.env.DISCORD_TOKEN || config.token);
