@@ -7,7 +7,7 @@ const rolesPath = path.join(__dirname, "../utils/rolesConfig.json");
 module.exports = {
     name: "roles",
     description: "Let members choose a role",
-    async execute(message, args) {
+    async execute(message) {
         if (!fs.existsSync(rolesPath)) {
             return message.reply("⚠️ No roles have been configured yet. Ask an admin to use `!roleadmin`.");
         }
