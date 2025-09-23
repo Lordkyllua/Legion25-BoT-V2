@@ -1,14 +1,3 @@
 
 const store = require('../store.json');
-const { EmbedBuilder } = require('discord.js');
-module.exports = {
-  name: 'shop',
-  description: 'Show shop items',
-  execute(message) {
-    const embed = new EmbedBuilder().setTitle('🛒 Shop');
-    for (const [id, item] of Object.entries(store)) {
-      embed.addFields({ name: id, value: `${item.price} coins — ${item.description}` });
-    }
-    message.reply({ embeds:[embed] });
-  }
-};
+module.exports = { name:'shop', description:'Show shop', execute(message){ let out = 'Shop:\n'; for(const [id,it] of Object.entries(store)) out += `**${id}** - ${it.price} - ${it.description}\n`; message.reply(out); } };

@@ -5,17 +5,14 @@ module.exports = {
   description: 'Games menu',
   execute(message) {
     const options = [
-      { label:'Dice (roll)', value:'dado' },
+      { label:'Dice', value:'dado' },
       { label:'Rock Paper Scissors', value:'rps' },
       { label:'Coinflip', value:'coinflip' },
-      { label:'Guess (1-10)', value:'guess' },
-      { label:'Meme', value:'meme' },
-      { label:'Quote', value:'quote' },
-      { label:'Gif', value:'gif' }
+      { label:'Guess', value:'guess' }
     ];
     const select = new StringSelectMenuBuilder().setCustomId('games_select').setPlaceholder('Choose a game').addOptions(options);
     const row = new ActionRowBuilder().addComponents(select);
-    const embed = new EmbedBuilder().setTitle('🎮 Games').setDescription('Choose a mini-game').setColor('Green');
+    const embed = new EmbedBuilder().setTitle('Games').setDescription('Pick a mini-game').setColor('Purple');
     message.reply({ embeds:[embed], components:[row] });
   }
 };
