@@ -1,100 +1,213 @@
 
 const fs = require('fs');
 const path = require('path');
-const rolesPath = path.join(__dirname, '../utils/rolesConfig.json');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const store = require('../store.json');
+const rolesConfigPath = path.join(__dirname, '../utils/rolesConfig.json');
 const rpg = require('../utils/rpg');
-const clans = require('../utils/clans');
-const points = require('../utils/points');
 
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction, client) {
     try {
-      // Buttons -> help categories (reply ephemeral)
-      if (typeof interaction.isButton === 'function' && interaction.isButton()) {
+      if (interaction.isButton?.()) {
         const id = interaction.customId;
         if (id.startsWith('help_')) {
           const maps = {
-            'help_games': { title: '🎮 Games Commands', color: 0xFFD700, fields: [{name:'!coinflip',value:'Flip a coin',inline:true},{name:'!guess',value:'Guess a number',inline:true},{name:'!games',value:'Games menu',inline:true}]},
-            'help_rpg': { title: '⚔️ RPG Commands', color: 0xFF4500, fields: [{name:'!rpg',value:'Open RPG menu',inline:true},{name:'!rpgprofile',value:'Show RPG profile',inline:true},{name:'!quest',value:'Do a quest',inline:true}]},
-            'help_clans': { title: '👥 Clan Commands', color: 0x32CD32, fields: [{name:'!createclan',value:'Create a clan',inline:true},{name:'!joinclan',value:'Join a clan',inline:true},{name:'!claninfo',value:'Clan info',inline:true}]},
-            'help_shop': { title: '📊 Points & Shop', color: 0x1E90FF, fields: [{name:'!ranking',value:'Show top players',inline:true},{name:'!shop',value:'Show shop items',inline:true},{name:'!buy',value:'Buy an item',inline:true}]},
-            'help_moderation': { title: '🛠️ Moderation', color: 0xDC143C, fields: [{name:'!warn',value:'Warn a user',inline:true},{name:'!warnings',value:'Show warnings',inline:true},{name:'!mute',value:'Mute a user',inline:true}]}
+            'help_games': { title: 'Games', fields: ['!games - open games menu','!coinflip','!guess'] },
+            'help_rpg': { title: 'RPG', fields: ['!rpg - open rpg menu','!rpgprofile','!quest','!fight'] },
+            'help_clans': { title: 'Clans', fields: ['!createclan','!joinclan','!leaveclan','!claninfo'] },
+            'help_shop': { title: 'Shop', fields: ['!shop','!buy','!inventory','!ranking'] },
+            'help_moderation': { title: 'Moderation', fields: ['!warn','!warnings','!mute','!setchannel'] }
           };
           const m = maps[id];
-          if (!m) return interaction.reply({ content: 'Category not found', ephemeral: true });
+          if(!m) return interaction.reply({ content: 'Unknown category', ephemeral: true });
           const { EmbedBuilder } = require('discord.js');
-          const embed = new EmbedBuilder().setTitle(m.title).setColor(m.color).addFields(m.fields);
-          return interaction.reply({ embeds: [embed], ephemeral: true });
+          const embed = new EmbedBuilder().setTitle(m.title).setDescription(m.fields.join('\n')).setColor(0x00AAFF);
+          return interaction.reply({ embeds:[embed], ephemeral:true });
         }
       }
 
-      // Select menus -> defer + editReply
-      if (typeof interaction.isStringSelectMenu === 'function' && interaction.isStringSelectMenu()) {
+      if (interaction.isStringSelectMenu?.()) {
         const id = interaction.customId;
         await interaction.deferReply({ ephemeral: true });
 
-        // roleadmin select - only allow the user who opened message? we just save selection when admin selects
-        if (id === 'roleadmin_select') {
-          // Save selected role IDs and names into utils/rolesConfig.json
-          const values = interaction.values; // array of role IDs
-          const guild = interaction.guild;
-          const rolesData = values.map(id => {
-            const r = guild.roles.cache.get(id);
-            return r ? { id: r.id, name: r.name } : null;
-          }).filter(Boolean);
-          fs.writeFileSync(rolesPath, JSON.stringify(rolesData, null, 2));
-          return interaction.editReply({ content: `Saved ${rolesData.length} self-assignable roles.` });
+        if (id.startsWith('buy_item_')) {
+          const ownerId = id.split('_')[2];
+          if (interaction.user.id !== ownerId) return interaction.editReply({ content: "❌ You cannot use this menu.", ephemeral:true });
+          const itemName = interaction.values[0];
+          const item = store.find(i=>i.name===itemName);
+          if(!item) return interaction.editReply({ content: 'Item not found.' });
+          const confirmRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId(`confirm_buy_${interaction.user.id}_${item.name}`).setLabel('Confirm').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId(`cancel_buy_${interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
+          );
+          await interaction.editReply({ content: `Are you sure you want to buy **${item.name}** for ${item.price} gold?`, components:[confirmRow] });
+
+          const filter = i => i.user.id === interaction.user.id && (i.customId.startsWith(`confirm_buy_${interaction.user.id}`) || i.customId.startsWith(`cancel_buy_${interaction.user.id}`));
+          const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30_000 });
+
+          collector.on('collect', async i => {
+            if (i.customId.startsWith(`confirm_buy_${interaction.user.id}`)) {
+              const user = rpg.getUserData(i.user.id);
+              if (user.gold < item.price) {
+                await i.update({ content: `❌ Not enough gold. You have ${user.gold}.`, components: [] });
+                collector.stop();
+                return;
+              }
+              user.gold -= item.price;
+              user.inventory.push(item.name);
+              rpg.saveUserData(i.user.id, user);
+              await i.update({ content: `✅ Purchase complete: **${item.name}**.`, components: [] });
+              collector.stop();
+            } else if (i.customId.startsWith(`cancel_buy_${interaction.user.id}`)) {
+              await i.update({ content: '❌ Purchase cancelled.', components: [] });
+              collector.stop();
+            }
+          });
+
+          collector.on('end', async collected => {
+            if (collected.size === 0) {
+              try { await interaction.editReply({ content: '⌛ Interaction expired (no confirmation).', components: [] }); } catch(e){} 
+            }
+          });
+
+          return;
         }
 
-        if (id === 'roles_select') {
+        if (id.startsWith('roles_select_')) {
+          const ownerId = id.split('_')[2];
+          if (interaction.user.id !== ownerId) return interaction.editReply({ content: "❌ You cannot use this menu.", ephemeral:true });
           const roleId = interaction.values[0];
           const role = interaction.guild.roles.cache.get(roleId);
-          if (!role) return interaction.editReply({ content: 'Role not found' });
-          try {
-            const configured = JSON.parse(fs.readFileSync(rolesPath,'utf8')||'[]');
-            const toRemove = configured.map(r=>r.id).filter(rid=>rid!==roleId);
-            await interaction.member.roles.remove(toRemove).catch(()=>{});
-          } catch(e){}
-          await interaction.member.roles.add(role).catch(()=>{});
-          return interaction.editReply({ content: `You were given **${role.name}**` });
+          if(!role) return interaction.editReply({ content: 'Role not found.' });
+          const confirmRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId(`confirm_role_${interaction.user.id}_${roleId}`).setLabel('Confirm').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId(`cancel_role_${interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
+          );
+          await interaction.editReply({ content: `Assign role **${role.name}** to yourself?`, components:[confirmRow] });
+
+          const filter = i => i.user.id === interaction.user.id && (i.customId.startsWith(`confirm_role_${interaction.user.id}`) || i.customId.startsWith(`cancel_role_${interaction.user.id}`));
+          const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30_000 });
+
+          collector.on('collect', async i => {
+            if (i.customId.startsWith(`confirm_role_${interaction.user.id}`)) {
+              try {
+                const configured = JSON.parse(fs.readFileSync(rolesConfigPath,'utf8')||'[]');
+                const other = configured.map(r=>r.id).filter(r=>r!==roleId);
+                await i.member.roles.remove(other).catch(()=>{});
+              } catch(e){}
+              await i.member.roles.add(role).catch(()=>{});
+              await i.update({ content: `✅ You were given **${role.name}**.`, components: [] });
+              collector.stop();
+            } else {
+              await i.update({ content: '❌ Cancelled.', components: [] });
+              collector.stop();
+            }
+          });
+
+          collector.on('end', async collected => {
+            if (collected.size === 0) {
+              try { await interaction.editReply({ content: '⌛ Interaction expired (no confirmation).', components: [] }); } catch(e){} 
+            }
+          });
+          return;
         }
 
-        if (id === 'rpg_select') {
+        if (id.startsWith('roleadmin_select_')) {
+          const ownerId = id.split('_')[2];
+          if (interaction.user.id !== ownerId) return interaction.editReply({ content: "❌ You cannot use this menu.", ephemeral:true });
+          const values = interaction.values;
+          const guild = interaction.guild;
+          const rolesData = values.map(id=>{ const r = guild.roles.cache.get(id); return r?{id:r.id,name:r.name}:null; }).filter(Boolean);
+          const confirmRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId(`confirm_roleadmin_${interaction.user.id}`).setLabel('Save').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId(`cancel_roleadmin_${interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
+          );
+          await interaction.editReply({ content: `Save ${rolesData.length} roles as self-assignable?`, components:[confirmRow] });
+
+          const filter = i => i.user.id === interaction.user.id && (i.customId.startsWith(`confirm_roleadmin_${interaction.user.id}`) || i.customId.startsWith(`cancel_roleadmin_${interaction.user.id}`));
+          const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30_000 });
+
+          collector.on('collect', async i => {
+            if (i.customId.startsWith(`confirm_roleadmin_${interaction.user.id}`)) {
+              fs.writeFileSync(rolesConfigPath, JSON.stringify(rolesData, null, 2));
+              await i.update({ content: `✅ Saved ${rolesData.length} roles.`, components: [] });
+              collector.stop();
+            } else {
+              await i.update({ content: '❌ Cancelled.', components: [] });
+              collector.stop();
+            }
+          });
+
+          collector.on('end', async collected => {
+            if (collected.size === 0) {
+              try { await interaction.editReply({ content: '⌛ Interaction expired (no confirmation).', components: [] }); } catch(e){} 
+            }
+          });
+          return;
+        }
+
+        if (id.startsWith('rpg_select_')) {
+          const ownerId = id.split('_')[2];
+          if (interaction.user.id !== ownerId) return interaction.editReply({ content: "❌ You cannot use this menu.", ephemeral:true });
           const choice = interaction.values[0];
-          const uid = interaction.user.id;
           if (choice === 'profile') {
-            const p = rpg.getProfile(uid);
-            return interaction.editReply({ content: `📜 ${interaction.user.username} — Level ${p.level} — XP ${p.xp} — HP ${p.hp} — Gold ${p.gold}` });
+            const u = rpg.getUserData(interaction.user.id);
+            return interaction.editReply({ content: `Profile: Level ${u.level} XP ${u.xp} Gold ${u.gold}` });
           }
-          if (choice === 'quests') { rpg.addXP(uid,30); rpg.addGold(uid,20); return interaction.editReply({ content: '📝 Quest completed: +30 XP, +20 gold' }); }
+          if (choice === 'quest') {
+            rpg.addXP(interaction.user.id,30);
+            rpg.saveUserData(interaction.user.id, rpg.getUserData(interaction.user.id));
+            return interaction.editReply({ content: 'Quest completed: +30 XP' });
+          }
           if (choice === 'fight') {
-            const enemies = [{name:'Goblin',hp:30,xp:20,gold:10},{name:'Orc',hp:60,xp:40,gold:30}];
-            const enemy = enemies[Math.floor(Math.random()*enemies.length)];
-            const playerRoll = Math.floor(Math.random()*30)+10;
-            const enemyRoll = Math.floor(Math.random()*25)+5;
-            if (playerRoll >= enemyRoll) { rpg.addXP(uid, enemy.xp); rpg.addGold(uid, enemy.gold); return interaction.editReply({ content: `⚔️ You defeated ${enemy.name}! +${enemy.xp} XP, +${enemy.gold} gold` }); }
-            else { rpg.damagePlayer(uid,40); return interaction.editReply({ content: `💥 You were defeated by ${enemy.name}... You lost HP.` }); }
+            const confirmRow = new ActionRowBuilder().addComponents(
+              new ButtonBuilder().setCustomId(`confirm_fight_${interaction.user.id}`).setLabel('Fight').setStyle(ButtonStyle.Danger),
+              new ButtonBuilder().setCustomId(`cancel_fight_${interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Secondary)
+            );
+            await interaction.editReply({ content: 'Are you sure you want to start a fight? (30s to confirm)', components:[confirmRow] });
+
+            const filter = i => i.user.id === interaction.user.id && (i.customId.startsWith(`confirm_fight_${interaction.user.id}`) || i.customId.startsWith(`cancel_fight_${interaction.user.id}`));
+            const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30_000 });
+
+            collector.on('collect', async i => {
+              if (i.customId.startsWith(`confirm_fight_${interaction.user.id}`)) {
+                const gain = Math.floor(Math.random()*30)+10;
+                const u = rpg.getUserData(i.user.id);
+                u.gold += gain;
+                rpg.saveUserData(i.user.id, u);
+                await i.update({ content: `You fought and gained ${gain} gold.`, components: [] });
+                collector.stop();
+              } else {
+                await i.update({ content: 'Fight cancelled.', components: [] });
+                collector.stop();
+              }
+            });
+
+            collector.on('end', async collected => {
+              if (collected.size === 0) {
+                try { await interaction.editReply({ content: '⌛ Interaction expired (no confirmation).', components: [] }); } catch(e){} 
+              }
+            });
+            return;
           }
-          if (choice === 'levelup') { rpg.addXP(uid,100); return interaction.editReply({ content: '⬆️ You gained XP and may have leveled up!' }); }
         }
 
-        if (id === 'games_select') {
+        if (id.startsWith('games_select_')) {
+          const ownerId = id.split('_')[2];
+          if (interaction.user.id !== ownerId) return interaction.editReply({ content: "❌ You cannot use this menu.", ephemeral:true });
           const choice = interaction.values[0];
-          if (choice === 'dado') { const r = Math.floor(Math.random()*6)+1; return interaction.editReply({ content: `🎲 You rolled a **${r}**` }); }
-          if (choice === 'coinflip') { const res = Math.random()<0.5 ? 'Heads' : 'Tails'; return interaction.editReply({ content: `🪙 ${res}` }); }
+          if (choice === 'dado') { const r = Math.floor(Math.random()*6)+1; return interaction.editReply({ content: `🎲 You rolled ${r}` }); }
+          if (choice === 'coinflip') { const r = Math.random()<0.5?'Heads':'Tails'; return interaction.editReply({ content: `🪙 ${r}` }); }
           if (choice === 'guess') return interaction.editReply({ content: 'Use `!guess <1-10>`' });
         }
 
         return interaction.editReply({ content: 'Option received.' });
       }
-
-    } catch (err) {
-      console.error('Interaction handler error:', err);
-      try {
-        if (!interaction.replied && !interaction.deferred) await interaction.reply({ content: 'Error handling interaction', ephemeral: true });
-        else if (interaction.deferred && !interaction.replied) await interaction.editReply({ content: 'Error handling interaction' });
-      } catch (e) { console.error('Failed to send error reply', e); }
+    } catch(err) {
+      console.error('interactionCreate error', err);
+      try { if(!interaction.replied) await interaction.reply({ content: 'Error handling interaction', ephemeral:true }); } catch(e) {}
     }
   }
 };

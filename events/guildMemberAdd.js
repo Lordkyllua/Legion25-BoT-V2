@@ -8,6 +8,6 @@ module.exports = {
       if (!chId) return;
       const ch = member.guild.channels.cache.get(chId);
       if (ch) ch.send(`👋 Welcome ${member.user} to **${member.guild.name}**!`);
-    } catch (e) { console.error('guildMemberAdd error', e); }
+    } catch(e){ console.error(e); }
   }
 };
