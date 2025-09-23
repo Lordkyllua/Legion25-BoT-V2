@@ -1,6 +1,7 @@
+
 {
   "prefix": "!",
-  "token": "PUT_YOUR_TOKEN_IN_ENV_OR_REMOVE_THIS_PLACEHOLDER",
+  "token": "PUT_TOKEN_IN_ENV",
   "welcomeChannel": "",
   "rolesChannel": "",
   "gamesChannel": ""

@@ -1,7 +1,8 @@
+
 {
   "name": "legion25-bot",
   "version": "1.0.0",
-  "description": "Legion 25 Bot - interactive menus - v14",
+  "description": "Legion25 Bot - complete",
   "main": "index.js",
   "scripts": { "start": "node index.js" },
   "engines": { "node": "18.x" },
