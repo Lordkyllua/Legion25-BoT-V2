@@ -1,20 +1,22 @@
+// events/messageCreate.js
+const prefix = "!";
 
 module.exports = {
-  name: 'messageCreate',
+  name: "messageCreate",
   async execute(message, client) {
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    const command = client.commands.get(commandName);
+    if (!command) return;
+
     try {
-      if (!message || !message.author) return;
-      if (message.author.bot) return;
-      const cfg = require('../config.json');
-      const prefix = cfg.prefix || '!';
-      if (!message.content.startsWith(prefix)) return;
-      const args = message.content.slice(prefix.length).trim().split(/ +/);
-      const cmdName = args.shift().toLowerCase();
-      const command = client.commands.get(cmdName);
-      if (!command) return;
-      await command.execute(message, args, client);
-    } catch (err) {
-      console.error('Error in messageCreate:', err);
+      await command.execute(message, args, client, prefix);
+    } catch (error) {
+      console.error(error);
+      message.reply("❌ There was an error executing this command.");
     }
-  }
+  },
 };
