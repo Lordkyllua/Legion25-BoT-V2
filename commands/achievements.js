@@ -1,1 +1,8 @@
-module.exports = { name:'achievements', description:'Show achievements', execute(message){ message.channel.send('🏅 Achievements coming soon!'); } };
+
+module.exports = {
+  name: 'achievements',
+  description: 'Show achievements (placeholder)',
+  execute(message) {
+    message.reply('🏆 Achievements system coming soon.');
+  }
+};

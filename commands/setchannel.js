@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const cfgPath = path.join(__dirname, '../config.json');

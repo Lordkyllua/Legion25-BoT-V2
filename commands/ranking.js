@@ -1,3 +1,4 @@
+
 const points = require('../utils/points');
 module.exports = {
   name: 'ranking',

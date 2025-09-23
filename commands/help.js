@@ -1,21 +1,21 @@
+
 const { EmbedBuilder } = require('discord.js');
 module.exports = {
   name: 'help',
-  description: 'Show all commands',
+  description: 'Show all available commands',
   execute(message) {
     const embed = new EmbedBuilder()
       .setTitle('📜 Legion 25 Bot - Help')
       .setColor('Aqua')
-      .setDescription('Commands grouped by category')
+      .setDescription('Available commands:')
       .addFields(
-        { name: '🎮 Games', value: '`!games` → Game menu (interactive)' },
-        { name: '⚔️ RPG', value: '`!rpg` → RPG menu (interactive)' },
-        { name: '🏰 Clans', value: '`!clan` → Clan menu (interactive)' },
-        { name: '🎭 Roles', value: '`!roleadmin` → Admin config; `!roles` → Member role menu' },
-        { name: '💰 Economy', value: '`!daily`, `!shop`, `!buy`, `!inventory`, `!ranking`' },
-        { name: '👮 Moderation', value: '`!warn`, `!warnings`, `!mute`' }
+        { name: 'Games', value: '`!games`' },
+        { name: 'RPG', value: '`!rpg`' },
+        { name: 'Clans', value: '`!clan`' },
+        { name: 'Roles', value: '`!roleadmin` (admin) and `!roles` (members)' },
+        { name: 'Economy', value: '`!daily`, `!shop`, `!buy`, `!inventory`, `!ranking`' }
       )
-      .setFooter({ text: '🤖 Developed by LordK | Inspired by Tiny Survivors' });
-    message.channel.send({ embeds: [embed] });
+      .setFooter({ text: '🤖 Developed by LordK' });
+    message.reply({ embeds:[embed] });
   }
 };

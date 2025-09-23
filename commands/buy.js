@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const points = require('../utils/points');
 const store = require('../store.json');

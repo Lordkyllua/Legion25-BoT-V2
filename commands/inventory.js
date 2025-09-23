@@ -1,3 +1,4 @@
+
 const db = require('../database.json');
 module.exports = {
   name: 'inventory',

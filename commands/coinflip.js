@@ -1,6 +1,9 @@
-const games = require('./games');
+
 module.exports = {
   name: 'coinflip',
-  description: 'Coin flip wrapper',
-  execute(message,args){ return games.execute(message,['coinflip', ...args]); }
+  description: 'Flip a coin',
+  execute(message) {
+    const res = Math.random() < 0.5 ? 'Heads' : 'Tails';
+    message.reply(`🪙 ${res}`);
+  }
 };

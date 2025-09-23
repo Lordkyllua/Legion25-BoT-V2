@@ -1,3 +1,4 @@
+
 module.exports = {
   name: 'mute',
   description: 'Mute a member (create Muted role if needed)',
