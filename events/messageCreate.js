@@ -1,7 +1,6 @@
 
 const cfg = require('../config.json');
 const prefix = cfg.prefix || '!';
-
 module.exports = {
   name: 'messageCreate',
   async execute(message, client) {
