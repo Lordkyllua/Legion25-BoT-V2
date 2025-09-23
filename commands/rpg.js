@@ -5,7 +5,7 @@ module.exports = {
   description: 'RPG menu',
   execute(message) {
     const options = [
-      { label: 'Profile', value: 'profile' },
+      { label: 'View Profile', value: 'profile' },
       { label: 'Quests', value: 'quests' },
       { label: 'Fight', value: 'fight' },
       { label: 'Level Up', value: 'levelup' }

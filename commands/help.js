@@ -23,7 +23,6 @@ module.exports = {
 
     const sent = await message.channel.send({ embeds:[embed], components:[row,row2] });
 
-    // set timeout to disable buttons after 60s
     setTimeout(async ()=>{
       try {
         const disabledRow = new ActionRowBuilder().addComponents(
