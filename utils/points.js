@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const PATH = './points.json';
 function load(){ try { return JSON.parse(fs.readFileSync(PATH,'utf8')); } catch(e){ return {}; } }
