@@ -1,18 +1,9 @@
-# Legion 25 Bot
 
-Discord bot *Legion 25 Bot* developed by **LordK**, inspired by *Tiny Survivors*.
-Contains games, RPG, clans, economy and moderation tools.
+# Legion25 Bot - Fixed interactions
 
-## Quick start
-1. Set `DISCORD_TOKEN` in Railway or your environment.
-2. `npm install`
-3. `npm start`
+This package contains a fixed version of the Legion25 Discord bot with robust interaction handling.
+- Use `DISCORD_TOKEN` environment variable or fill `config.json` with token (not recommended).
+- Run `npm install` then `npm start`.
+- Prefix: `!`
 
-## Structure
-- `commands/` - bot commands
-- `events/` - event handlers
-- `utils/` - helpers and persistence access
-- `config.json` - prefix and channels
-
-## License
-MIT License — see LICENSE file.
+Commands include `!help`, `!rpg`, `!games`, `!roles`, `!roleadmin`, moderation commands and more.
