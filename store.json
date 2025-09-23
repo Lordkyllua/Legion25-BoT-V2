@@ -1,14 +1,17 @@
-{
-  "sword": {
-    "price": 100,
-    "description": "Sword +10 attack"
+[
+  {
+    "name": "Sword",
+    "price": 50,
+    "description": "A basic sword."
   },
-  "shield": {
-    "price": 80,
-    "description": "Shield +5 defense"
+  {
+    "name": "Shield",
+    "price": 40,
+    "description": "A sturdy shield."
   },
-  "potion": {
-    "price": 30,
-    "description": "Heal 20 HP"
+  {
+    "name": "Potion",
+    "price": 20,
+    "description": "Restores HP."
   }
-}
+]
