@@ -1,3 +1,1 @@
-
-const store = require('../store.json');
-module.exports = { name:'shop', description:'Show shop', execute(message){ let out = 'Shop:\n'; for(const [id,it] of Object.entries(store)) out += `**${id}** - ${it.price} - ${it.description}\n`; message.reply(out); } };
+const store=require('../store.json'); module.exports={name:'shop',description:'Show shop items',execute(message){ const out = store.map(i=>`**${i.name}** - ${i.price} gold - ${i.description}`).join('\n'); message.reply('Shop:\n'+out); }};

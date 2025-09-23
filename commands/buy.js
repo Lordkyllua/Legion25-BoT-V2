@@ -1,5 +1,9 @@
 
-const fs = require('fs');
-const points = require('../utils/points');
+const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 const store = require('../store.json');
-module.exports = { name:'buy', description:'Buy item', execute(message,args){ const item=args[0]; if(!item||!store[item]) return message.reply('Usage: !buy <item>'); const cost=store[item].price; if(points.getPoints(message.author.id)<cost) return message.reply('Not enough coins'); points.removePoints(message.author.id,cost); const db=JSON.parse(fs.readFileSync('./database.json','utf8')); if(!db.users[message.author.id]) db.users[message.author.id]={id:message.author.id,inventory:[]}; db.users[message.author.id].inventory.push(item); fs.writeFileSync('./database.json', JSON.stringify(db,null,2)); message.reply(`You bought ${item}`); } };
+module.exports = { name:'buy', description:'Buy item menu', async execute(message) {
+  const select = new StringSelectMenuBuilder().setCustomId(`buy_item_${message.author.id}`).setPlaceholder('Select item').addOptions(store.map(i=>({ label:`${i.name} - ${i.price} gold`, description:i.description, value:i.name })));
+  const row = new ActionRowBuilder().addComponents(select);
+  const embed = new EmbedBuilder().setTitle('Shop').setDescription(`You have gold in your RPG account. Choose an item to buy.`).setColor(0xFFD700);
+  await message.reply({ embeds:[embed], components:[row] });
+} };

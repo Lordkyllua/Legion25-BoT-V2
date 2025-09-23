@@ -1,3 +1,1 @@
-
-const rpg = require('../utils/rpg');
-module.exports = { name:'quest', description:'Do a quest', execute(message){ rpg.addXP(message.author.id,30); rpg.addGold(message.author.id,20); message.reply('Quest +30XP +20 gold'); } };
+const rpg=require('../utils/rpg'); module.exports={name:'quest',description:'Do a quest',execute(message){ rpg.addXP(message.author.id,30); rpg.saveUserData(message.author.id, rpg.getUserData(message.author.id)); message.reply('Quest complete +30 XP'); }};

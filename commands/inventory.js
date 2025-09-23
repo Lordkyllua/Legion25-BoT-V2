@@ -1,3 +1,1 @@
-
-const db = require('../database.json');
-module.exports = { name:'inventory', description:'Show inventory', execute(message){ const u=db.users[message.author.id]; if(!u||!u.inventory||u.inventory.length===0) return message.reply('Inventory empty'); message.reply('Inventory: '+u.inventory.join(', ')); } };
+const rpg=require('../utils/rpg'); const { EmbedBuilder } = require('discord.js'); module.exports={name:'inventory',description:'Show inventory',execute(message){ const u=rpg.getUserData(message.author.id); const embed=new EmbedBuilder().setTitle(`${message.author.username}'s Inventory`).setDescription(u.inventory.length?u.inventory.join('\n'):'Empty').addFields({name:'Gold',value:`${u.gold}`,inline:true}).setColor(0x0000FF); message.reply({ embeds:[embed] }); }};
