@@ -1,12 +1,14 @@
 
 const fs = require('fs');
 const PATH = './database.json';
-function load(){ try { return JSON.parse(fs.readFileSync(PATH,'utf8')); } catch(e){ return {users:{},clans:{},warnings:{}}; } }
+function load(){ try { return JSON.parse(fs.readFileSync(PATH,'utf8')); } catch(e){ return {}; } }
 function save(db){ fs.writeFileSync(PATH, JSON.stringify(db, null, 2)); }
+function ensure(userId){ const db=load(); if(!db[userId]){ db[userId]={gold:100,level:1,xp:0,inventory:[]}; save(db);} return db[userId]; }
 module.exports = {
-  getProfile(userId){ const db=load(); if(!db.users[userId]){ db.users[userId]={id:userId,level:1,xp:0,hp:100,gold:50,inventory:[]}; save(db);} return db.users[userId]; },
-  addXP(userId,amount){ const db=load(); if(!db.users[userId]) this.getProfile(userId); const p=db.users[userId]; p.xp+=amount; while(p.xp>=p.level*100){ p.xp-=p.level*100; p.level++; p.hp=100 + p.level*10; } save(db); return p; },
-  addGold(userId,amount){ const db=load(); if(!db.users[userId]) this.getProfile(userId); db.users[userId].gold += amount; save(db); return db.users[userId]; },
-  addItem(userId,item){ const db=load(); if(!db.users[userId]) this.getProfile(userId); db.users[userId].inventory.push(item); save(db); return db.users[userId]; },
-  damagePlayer(userId,dmg){ const db=load(); if(!db.users[userId]) return null; const p=db.users[userId]; p.hp -= dmg; if(p.hp<=0){ p.hp = 100 + (p.level-1)*10; p.gold = Math.max(0,p.gold-10); } save(db); return p; }
+  getUserData(userId){ return ensure(userId); },
+  saveUserData(userId,data){ const db=load(); db[userId]=data; save(db); },
+  addGold(userId,amt){ const db=load(); const u=ensure(userId); u.gold += amt; save(db); return u; },
+  addXP(userId,amt){ const db=load(); const u=ensure(userId); u.xp += amt; while(u.xp >= 100){ u.xp -= 100; u.level += 1; } save(db); return u; },
+  addItem(userId,item){ const db=load(); const u=ensure(userId); u.inventory.push(item); save(db); return u; },
+  spendGold(userId,amt){ const db=load(); const u=ensure(userId); if(u.gold < amt) return false; u.gold -= amt; save(db); return true; }
 };
