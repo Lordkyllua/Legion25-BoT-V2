@@ -61,8 +61,9 @@ module.exports = {
       .setPlaceholder("Choose a category")
       .addOptions(
         Object.keys(categories).map(cat => ({
-          label: cat,
-          value: cat,
+          label: cat.replace(/[^a-zA-Z ]/g, ""), // el label solo texto
+          emoji: cat.match(/[\p{Emoji}]/gu)?.[0] || null, // toma el emoji inicial si hay
+          value: cat, // el value incluye emoji + texto
         }))
       );
 
@@ -70,12 +71,16 @@ module.exports = {
 
     const sent = await message.channel.send({ embeds: [embed], components: [row] });
 
-    const collector = sent.createMessageComponentCollector({ time: 60000 });
+    const collector = sent.createMessageComponentCollector({
+      componentType: "STRING_SELECT",
+      time: 60000
+    });
 
     collector.on("collect", async i => {
       if (i.customId !== "help_select") return;
+
       if (i.user.id !== message.author.id) {
-        return i.reply({ content: "This menu is not for you.", ephemeral: true });
+        return i.reply({ content: "⚠️ This menu is not for you.", ephemeral: true });
       }
 
       const selected = i.values[0];
@@ -86,7 +91,16 @@ module.exports = {
         .setDescription(cmds)
         .setColor("Green");
 
+      // importante para evitar "interacción fallida"
       await i.update({ embeds: [embedCategory], components: [row] });
+    });
+
+    collector.on("end", async () => {
+      // deshabilitar menú al expirar
+      const disabledRow = new ActionRowBuilder().addComponents(
+        selectMenu.setDisabled(true)
+      );
+      await sent.edit({ components: [disabledRow] });
     });
   }
 };
