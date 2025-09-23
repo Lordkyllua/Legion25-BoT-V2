@@ -5,16 +5,13 @@ module.exports = {
   execute(client) {
     console.log(`✅ Logged in as ${client.user.tag}`);
     const statuses = [
-      "Tiny Survivors: Training troops ⚔️",
-      "Tiny Survivors: Exploring dungeons 🏰",
-      "Tiny Survivors: Building the kingdom 🏗️",
-      "Tiny Survivors: Developed by LordK 🤖"
+      "Playing Tiny Survivors",
+      "Developed by LordK",
+      "Conquering lands",
+      "Training troops"
     ];
-    let i = 0;
+    let i=0;
     client.user.setPresence({ activities:[{ name: statuses[0], type: 0 }], status: 'online' });
-    setInterval(()=>{
-      client.user.setPresence({ activities:[{ name: statuses[i], type: 0 }], status: 'online' });
-      i = (i+1) % statuses.length;
-    }, 60_000);
+    setInterval(()=>{ client.user.setPresence({ activities:[{ name: statuses[i], type: 0 }] }); i=(i+1)%statuses.length; }, 60_000);
   }
 };
