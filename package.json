@@ -1,17 +1,13 @@
 {
   "name": "legion25-bot",
   "version": "1.0.0",
-  "description": "Legion 25 Bot - Developed by LordK - Interactive menus v14",
+  "description": "Legion 25 Bot - interactive menus - v14",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "engines": {
-    "node": "18.x"
-  },
+  "scripts": { "start": "node index.js" },
+  "engines": { "node": "18.x" },
   "dependencies": {
     "discord.js": "^14.15.3",
     "node-fetch": "^2.6.7",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.1.1"
   }
 }
