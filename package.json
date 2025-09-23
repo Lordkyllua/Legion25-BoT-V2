@@ -1,8 +1,8 @@
 
 {
-  "name": "legion25-bot-fixed",
+  "name": "legion25-bot",
   "version": "1.0.0",
-  "description": "Legion25 Bot - Fixed interactions",
+  "description": "Legion25 Bot - complete package",
   "main": "index.js",
   "scripts": { "start": "node index.js" },
   "engines": { "node": "18.x" },

@@ -1,14 +1,14 @@
 {
   "sword": {
     "price": 100,
-    "description": "\ud83d\udde1\ufe0f Sword +10 attack"
+    "description": "Sword +10 attack"
   },
   "shield": {
     "price": 80,
-    "description": "\ud83d\udee1\ufe0f Shield +5 defense"
+    "description": "Shield +5 defense"
   },
   "potion": {
     "price": 30,
-    "description": "\ud83d\udc8a Heal 20 HP"
+    "description": "Heal 20 HP"
   }
 }

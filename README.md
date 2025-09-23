@@ -1,9 +1,13 @@
 
-# Legion25 Bot - Fixed interactions
+# Legion25 Bot - Complete
 
-This package contains a fixed version of the Legion25 Discord bot with robust interaction handling.
-- Use `DISCORD_TOKEN` environment variable or fill `config.json` with token (not recommended).
-- Run `npm install` then `npm start`.
-- Prefix: `!`
+Legion25 Bot (developed by LordK) - complete package with interactive menus.
 
-Commands include `!help`, `!rpg`, `!games`, `!roles`, `!roleadmin`, moderation commands and more.
+## Setup
+1. `npm install`
+2. Set environment variable `DISCORD_TOKEN` to your bot token (recommended) or put it in `config.json` (not recommended).
+3. `node index.js`
+
+## Notes
+- This bot uses JSON files for persistence (`points.json`, `database.json`, `store.json`). For production use a database like SQLite/Postgres.
+- Make sure to give the bot the following intents in the developer portal: Server Members, Message Content.
