@@ -1,19 +1,15 @@
 
-const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 module.exports = {
   name: 'clan',
-  description: 'Clan menu',
-  execute(message) {
-    const options = [
-      { label: 'Create Clan', value: 'create' },
-      { label: 'Join Clan', value: 'join' },
-      { label: 'Leave Clan', value: 'leave' },
-      { label: 'Clan Info', value: 'info' },
-      { label: 'Invite Member', value: 'invite' }
-    ];
-    const select = new StringSelectMenuBuilder().setCustomId('clan_select').setPlaceholder('Choose a Clan action').addOptions(options);
-    const row = new ActionRowBuilder().addComponents(select);
-    const embed = new EmbedBuilder().setTitle('🏰 Clan Menu').setDescription('Select a clan action from the menu below.').setColor('Gold');
+  description: 'Clan main menu',
+  execute(message){
+    const embed = new EmbedBuilder().setTitle('Clan Menu').setDescription('Use the buttons to manage clans').setColor('Blue');
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('clan_create').setLabel('Create').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('clan_join').setLabel('Join').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId('clan_info').setLabel('Info').setStyle(ButtonStyle.Secondary)
+    );
     message.reply({ embeds:[embed], components:[row] });
   }
 };

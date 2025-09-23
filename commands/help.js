@@ -2,42 +2,30 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 module.exports = {
   name: 'help',
-  description: 'Interactive help menu (buttons)',
+  description: 'Show available commands and categories',
   async execute(message, args, client, prefix) {
     const embed = new EmbedBuilder()
-      .setTitle('📖 Help - Legion25 Bot')
-      .setDescription('Click a button to view commands in a category.')
-      .setColor('Blue');
+      .setTitle('📖 Legion25 Bot - Help')
+      .setDescription('Quick list of available commands. Click a button to get detailed info (ephemeral).')
+      .addFields(
+        { name: 'Games', value: '`!coinflip`, `!guess`, `!meme`, `!quote`, `!gif`' },
+        { name: 'RPG', value: '`!rpg` (menu), `!rpgprofile`, `!quest`, `!fight`, `!inventory`' },
+        { name: 'Clans', value: '`!createclan`, `!joinclan`, `!leaveclan`, `!claninfo`, `!claninvite`' },
+        { name: 'Economy', value: '`!ranking`, `!shop`, `!buy`, `!daily`' },
+        { name: 'Moderation', value: '`!warn`, `!warnings`, `!mute`, `!setchannel`' },
+        { name: 'Roles', value: '`!roles`, `!roleadmin`' }
+      )
+      .setColor(0x00AAFF)
+      .setFooter({ text: 'Developed by LordK' });
 
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('help_btn_economy').setLabel('Economy').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('help_btn_rpg').setLabel('RPG').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('help_btn_clans').setLabel('Clans').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('help_btn_roles').setLabel('Roles').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('help_btn_games').setLabel('Games').setStyle(ButtonStyle.Success)
-    );
-    const row2 = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('help_btn_fun').setLabel('Fun').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('help_btn_moderation').setLabel('Moderation').setStyle(ButtonStyle.Danger)
+      new ButtonBuilder().setCustomId('help_games').setLabel('Games').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('help_rpg').setLabel('RPG').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('help_clans').setLabel('Clans').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('help_shop').setLabel('Points & Shop').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('help_moderation').setLabel('Moderation').setStyle(ButtonStyle.Danger)
     );
 
-    const sent = await message.channel.send({ embeds:[embed], components:[row,row2] });
-
-    setTimeout(async ()=>{
-      try {
-        const disabledRow = new ActionRowBuilder().addComponents(
-          new ButtonBuilder().setCustomId('help_btn_economy').setLabel('Economy').setStyle(ButtonStyle.Primary).setDisabled(true),
-          new ButtonBuilder().setCustomId('help_btn_rpg').setLabel('RPG').setStyle(ButtonStyle.Primary).setDisabled(true),
-          new ButtonBuilder().setCustomId('help_btn_clans').setLabel('Clans').setStyle(ButtonStyle.Primary).setDisabled(true),
-          new ButtonBuilder().setCustomId('help_btn_roles').setLabel('Roles').setStyle(ButtonStyle.Secondary).setDisabled(true),
-          new ButtonBuilder().setCustomId('help_btn_games').setLabel('Games').setStyle(ButtonStyle.Success).setDisabled(true)
-        );
-        const disabledRow2 = new ActionRowBuilder().addComponents(
-          new ButtonBuilder().setCustomId('help_btn_fun').setLabel('Fun').setStyle(ButtonStyle.Secondary).setDisabled(true),
-          new ButtonBuilder().setCustomId('help_btn_moderation').setLabel('Moderation').setStyle(ButtonStyle.Danger).setDisabled(true)
-        );
-        await sent.edit({ components:[disabledRow, disabledRow2] });
-      } catch(e){}
-    }, 60000);
+    await message.channel.send({ embeds: [embed], components: [row] });
   }
 };
